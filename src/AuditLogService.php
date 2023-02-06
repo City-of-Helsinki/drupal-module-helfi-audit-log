@@ -56,9 +56,6 @@ class AuditLogService implements AuditLogServiceInterface {
 
     $current_timestamp = $this->time->getCurrentMicroTime();
 
-    // Determine user role based on if user has admin role.
-    $role = in_array("admin", $this->currentUser->getRoles()) ? "ADMIN" : "USER";
-
     $operation_data = [
       "origin" => $origin,
       "source" => "DRUPAL",
