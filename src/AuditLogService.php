@@ -7,6 +7,8 @@ use Drupal\Component\Serialization\Json;
 use Drupal\Core\Database\Connection;
 use Drupal\Core\Http\RequestStack;
 use Drupal\Core\Session\AccountProxyInterface;
+use Drupal\helfi_audit_log\Event\AuditLogEvent;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * AuditLog service.
@@ -23,11 +25,23 @@ class AuditLogService implements AuditLogServiceInterface {
   /**
    * Constructs a AuditLogService object.
    */
-  public function __construct(AccountProxyInterface $accountProxy, Connection $connection, TimeInterface $time, RequestStack $requestStack) {
+  public function __construct(AccountProxyInterface $accountProxy, Connection $connection, TimeInterface $time, RequestStack $requestStack, EventDispatcherInterface $eventDispatcher) {
     $this->currentUser = $accountProxy;
     $this->connection = $connection;
     $this->time = $time;
     $this->request = $requestStack->getCurrentRequest();
+    $this->eventDispatcher = $eventDispatcher;
+  }
+
+  /**
+   * Dispatch AuditLogEvent
+   *
+   * @param array $message
+   *   Message associated with the event.
+   */
+  public function dispatchEvent(array $message): void {
+    $event = new AuditLogEvent($message);
+    $this->eventDispatcher->dispatch($event, AuditLogEvent::LOG);
   }
 
   /**
