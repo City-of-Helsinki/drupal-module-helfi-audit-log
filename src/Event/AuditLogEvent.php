@@ -32,6 +32,18 @@ class AuditLogEvent extends Event {
   }
 
   /**
+   * Factory method for creating AuditLog events in sinlge line.
+   *
+   * @param array $message
+   *   Message for audit log.
+   */
+  public static function create(array $message) {
+    $event = new AuditLogEvent($message);
+    $event_dispatcher = \Drupal::service('event_dispatcher');
+    $event_dispatcher->dispatch($event, AuditLogEvent::LOG);
+  }
+
+  /**
    * Get message data.
    */
   public function getMessage(): array {
