@@ -4,6 +4,7 @@ namespace Drupal\helfi_audit_log\EventSubscriber;
 
 use Drupal\helfi_audit_log\AuditLogServiceInterface;
 use Drupal\helfi_audit_log\Event\AuditLogEvent;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -22,13 +23,23 @@ class AuditLogEventSubscriber implements EventSubscriberInterface {
   protected AuditLogServiceInterface $auditLogService;
 
   /**
+   * Logger service.
+   *
+   * @var Psr\Log\LoggerInterface
+   */
+  protected LoggerInterface $logger;
+
+  /**
    * Construct new AuditLogEventSubscriber.
    *
-   * @param \Drupal\helfi_audit_log\AuditLogServiceInterface $auditLogService
-   *   Service that handles writing to the log.
+   * @param Drupal\helfi_audit_log\AuditLogServiceInterface $auditLogService
+   *   Service that handles writing to the audit log.
+   * @param Psr\Log\LoggerInterface $logger
+   *   Logger for logging messages to Drupal logs.
    */
-  public function __construct(AuditLogServiceInterface $auditLogService) {
+  public function __construct(AuditLogServiceInterface $auditLogService, LoggerInterface $logger) {
     $this->auditLogService = $auditLogService;
+    $this->logger = $logger;
   }
 
   /**
@@ -48,10 +59,9 @@ class AuditLogEventSubscriber implements EventSubscriberInterface {
    * @param \Drupal\helfi_audit_log\Event\AuditLogEvent $event
    *   Event to handle.
    */
-  public function writeToDatabase(AuditLogEvent $event) {
+  public function writeToDatabase(AuditLogEvent $event): void {
     if (!$event->isValid()) {
-      \Drupal::logger('helfi_audit_log')
-        ->error(t('Audit log message validation failed.'));
+      $this->logger->error(t('Audit log message validation failed.'));
       return;
     }
     $this->auditLogService->logOperation($event->getMessage(), $event->getOrigin());
