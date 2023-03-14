@@ -52,7 +52,7 @@ class MyService {
 
 ### Reacting to events
 
-You can react to audit log events by implementing an event subscriber. Weight value decided in which order subscribers reacto to the events.
+You can react to audit log events by implementing an event subscriber. Weight value decides in which order subscribers reacto to the events. This module writes the log message to the database with weight -100. Use larger values in order to modify the log message before it is written in database.
 
 ```php
 <?php
@@ -81,3 +81,9 @@ class MyModuleAuditLogEventSubscriber implements EventSubscriberInterface {
     }
 }
 ```
+
+### Tests
+
+This module has unit and kernel tests. In order to run them you need compatible drupal installation with phpunit. You need to provide location of the drupal core and location of this module's phpunit.xml to run all the test. Example:
+
+```vendor/bin/phpunit -c public/core public/modules/contrib/helfi_audit_log```
