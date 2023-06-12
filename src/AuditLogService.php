@@ -59,9 +59,9 @@ class AuditLogService implements AuditLogServiceInterface {
     $operation_data = [
       "origin" => $origin,
       "source" => "DRUPAL",
-      "date_time" => floor($current_timestamp * 1000),
+      "date_time_epoch" => floor($current_timestamp * 1000),
       // Format should be yyyy-MM-ddThh:mm:ss.SSSZ.
-      "date_time_epoch" =>
+      "date_time" =>
       date("Y-m-d\TH:i:s", floor($current_timestamp)) .
       "." .
       str_pad(floor(($current_timestamp - floor($current_timestamp)) * 1000), 3, "0", STR_PAD_LEFT) .
