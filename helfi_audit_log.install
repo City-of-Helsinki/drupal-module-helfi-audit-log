@@ -1,5 +1,7 @@
 <?php
 
+use Drupal\Core\Database\Database;
+
 /**
  * @file
  * Install, update and uninstall functions for the Helfi Drupal AuditLog module.
@@ -18,9 +20,8 @@ function helfi_audit_log_schema() {
         'description' => 'Primary Key: Unique record ID.',
       ],
       'created_at' => [
-        'type' => 'int',
+        'mysql_type' => 'timestamp',
         'not null' => TRUE,
-        'default' => 0,
         'description' => 'Timestamp when the record was created.',
       ],
       'message' => [
@@ -44,6 +45,30 @@ function helfi_audit_log_schema() {
   ];
 
   return $schema;
+}
+
+function helfi_audit_log_update_9100() {
+  $spec = [
+    'mysql_type' => 'timestamp',
+    'not null' => TRUE,
+    'description' => 'Timestamp when the record was created.',
+  ];
+  $schema = Database::getConnection()->schema();
+  $schema->dropField('helfi_audit_logs', 'created_at');
+  $schema->addField('helfi_audit_logs', 'created_at', $spec);
+  $indexSpec = [
+    'fields' => [
+      'created_at' => [
+        'mysql_type' => 'timestamp',
+        'not null' => TRUE,
+        'description' => 'Timestamp when the record was created.',
+      ],
+    ],
+    'indexes' => [
+      'created_at' => ['created_at'],
+    ],
+  ];
+  $schema->addIndex('helfi_audit_logs', 'created_at', ['created_at'], $indexSpec);
 }
 
 /**
