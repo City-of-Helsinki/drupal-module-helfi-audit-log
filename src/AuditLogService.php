@@ -62,7 +62,7 @@ class AuditLogService implements AuditLogServiceInterface {
       "date_time_epoch" => floor($current_timestamp * 1000),
       // Format should be yyyy-MM-ddThh:mm:ss.SSSZ.
       "date_time" =>
-      date("Y-m-d\TH:i:s", floor($current_timestamp)) .
+      gmdate("Y-m-d\TH:i:s", floor($current_timestamp)) .
       "." .
       str_pad(floor(($current_timestamp - floor($current_timestamp)) * 1000), 3, "0", STR_PAD_LEFT) .
       "Z",
@@ -74,7 +74,7 @@ class AuditLogService implements AuditLogServiceInterface {
     try {
       $result = $this->connection->insert('helfi_audit_logs')
         ->fields([
-          'created_at' => $this->time->getRequestTime(),
+          'created_at' => gmdate('Y-m-d H:i:s', $this->time->getRequestTime()),
           'is_sent' => 0,
           'message' => Json::encode(['audit_event' => $operation_data]),
         ])
