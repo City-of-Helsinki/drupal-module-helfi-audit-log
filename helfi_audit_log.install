@@ -1,11 +1,11 @@
 <?php
 
-use Drupal\Core\Database\Database;
-
 /**
  * @file
  * Install, update and uninstall functions for the Helfi Drupal AuditLog module.
  */
+
+use Drupal\Core\Database\Database;
 
 /**
  * Implements hook_schema().
@@ -23,6 +23,7 @@ function helfi_audit_log_schema() {
         'mysql_type' => 'timestamp',
         'not null' => TRUE,
         'description' => 'Timestamp when the record was created.',
+        'default' => '2203-06-28 12:00:00.000Z',
       ],
       'message' => [
         'type' => 'text',
@@ -47,11 +48,17 @@ function helfi_audit_log_schema() {
   return $schema;
 }
 
+/**
+ * Change to date format instead of int for created_at column.
+ */
 function helfi_audit_log_update_9100() {
+  // Default value is needed to avoid NOT NULL errors during update.
+  // Drupal does not offer easy way to use CURRENT_TIMESTAMP.
   $spec = [
     'mysql_type' => 'timestamp',
     'not null' => TRUE,
     'description' => 'Timestamp when the record was created.',
+    'default' => '2023-06-28 12:00:00.000Z',
   ];
   $schema = Database::getConnection()->schema();
   $schema->dropField('helfi_audit_logs', 'created_at');
@@ -62,6 +69,7 @@ function helfi_audit_log_update_9100() {
         'mysql_type' => 'timestamp',
         'not null' => TRUE,
         'description' => 'Timestamp when the record was created.',
+        'default' => '2023-06-28 12:00:00.000Z',
       ],
     ],
     'indexes' => [
