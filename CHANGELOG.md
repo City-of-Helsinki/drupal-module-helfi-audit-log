@@ -1,4 +1,7 @@
 
+## 0.9.6
+- 8dfc4f3 Fix date format
+
 ## 0.9.5
 - c904c12 fix: PLATTA-4788: Fix created at default value.
 - ad6ecf7 fix: PLATTA-4788 Use default value for created_at column
