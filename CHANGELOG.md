@@ -1,4 +1,8 @@
 
+## 0.9.5
+- c904c12 fix: PLATTA-4788: Fix created at default value.
+- ad6ecf7 fix: PLATTA-4788 Use default value for created_at column
+
 ## 0.9.3
 - 627e923 fix: AU-1120: Fix date time fields
 
@@ -18,4 +22,4 @@
 - a1d1fb2 AU-517 Use drupal logger as a service
 - 0dbf399 Update to trigger webhook 2
 - fe473d5 Update to trigger webhook
-- d7d4ae2 Initial code import
+- d7d4ae2 Initial code import   
