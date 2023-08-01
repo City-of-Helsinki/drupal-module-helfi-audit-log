@@ -23,7 +23,7 @@ function helfi_audit_log_schema() {
         'mysql_type' => 'timestamp',
         'not null' => TRUE,
         'description' => 'Timestamp when the record was created.',
-        'default' => '2203-06-28 12:00:00',
+        'default' => '2023-06-28 12:00:00',
       ],
       'message' => [
         'type' => 'text',
