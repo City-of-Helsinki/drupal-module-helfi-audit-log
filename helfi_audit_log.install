@@ -80,6 +80,51 @@ function helfi_audit_log_update_9100() {
 }
 
 /**
+ * Update older records to use right epoch and datetime formats.
+ */
+function helfi_audit_log_update_9101() {
+  $date = '2023-08-07 23:59:59';
+
+  $query = \Drupal::database()->select('helfi_audit_logs', 'al')
+    ->condition('al.created_at', $date, '<=')
+    ->fields('al', ['id', 'message']);
+
+  $results = $query->execute();
+  $update_count = 0;
+
+  foreach ($results as $record) {
+    $json = json_decode($record->message);
+
+    // Epoch is in wrong field, same as timestamp - Swap them around.
+    $epoch = $json->audit_event->date_time;
+    $timeStamp = $json->audit_event->date_time_epoch;
+
+    // This data is correct. Skip.
+    if (is_numeric($timeStamp)) {
+      continue;
+    }
+
+    $json->audit_event->date_time = $timeStamp;
+    $json->audit_event->date_time_epoch = $epoch;
+
+    $jsonString = json_encode($json);
+
+    $updated = \Drupal::database()->update('helfi_audit_logs')
+      ->condition('id', $record->id)
+      ->fields([
+        'message' => $jsonString,
+      ])
+      ->execute();
+
+    if ($updated) {
+      $update_count++;
+    }
+  }
+
+  return t('Helfi - Audit logs: Fixed %count records', ['%count' => $update_count]);
+}
+
+/**
  * Implements hook_requirements().
  */
 function helfi_audit_log_requirements($phase) {
