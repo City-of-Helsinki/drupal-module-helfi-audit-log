@@ -1,4 +1,8 @@
+## 0.9.8
+- 2e7a23d fix: AU-1448: Update hook: Fix date format in audit log JSON message (#10).
 
+## 0.9.7
+- c4be18d Fix illegal timestamp default
 ## 0.9.6
 - 8dfc4f3 Fix date format
 
