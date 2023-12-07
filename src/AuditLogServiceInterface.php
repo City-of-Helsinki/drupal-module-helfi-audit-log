@@ -18,10 +18,11 @@ interface AuditLogServiceInterface {
   public function logOperation(array $message, string $origin): void;
 
   /**
-   * Dispatch AuditLogEvent
+   * Dispatch AuditLogEvent.
    *
    * @param array $message
    *   Message associated with the event.
    */
   public function dispatchEvent(array $message): void;
+
 }

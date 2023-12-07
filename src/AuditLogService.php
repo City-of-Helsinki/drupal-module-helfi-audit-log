@@ -6,7 +6,9 @@ use Drupal\Component\Datetime\TimeInterface;
 use Drupal\Component\Serialization\Json;
 use Drupal\Core\Database\Connection;
 use Drupal\Core\Http\RequestStack;
+use Drupal\Core\Logger\LoggerChannelFactory;
 use Drupal\Core\Session\AccountProxyInterface;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\helfi_audit_log\Event\AuditLogEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -14,6 +16,8 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  * AuditLog service.
  */
 class AuditLogService implements AuditLogServiceInterface {
+
+  use StringTranslationTrait;
 
   /**
    * Database connection.
@@ -23,18 +27,33 @@ class AuditLogService implements AuditLogServiceInterface {
   protected Connection $connection;
 
   /**
+   * Logger.
+   *
+   * @var \Drupal\Core\Logger\LoggerChannelFactory
+   */
+  protected $logger;
+
+  /**
    * Constructs a AuditLogService object.
    */
-  public function __construct(AccountProxyInterface $accountProxy, Connection $connection, TimeInterface $time, RequestStack $requestStack, EventDispatcherInterface $eventDispatcher) {
+  public function __construct(
+    AccountProxyInterface $accountProxy,
+    Connection $connection,
+    TimeInterface $time,
+    RequestStack $requestStack,
+    EventDispatcherInterface $eventDispatcher,
+    LoggerChannelFactory $loggerFactory
+  ) {
     $this->currentUser = $accountProxy;
     $this->connection = $connection;
     $this->time = $time;
     $this->request = $requestStack->getCurrentRequest();
     $this->eventDispatcher = $eventDispatcher;
+    $this->logger = $loggerFactory->get('helfi_audit_log');
   }
 
   /**
-   * Dispatch AuditLogEvent
+   * Dispatch AuditLogEvent.
    *
    * @param array $message
    *   Message associated with the event.
@@ -53,7 +72,6 @@ class AuditLogService implements AuditLogServiceInterface {
    *   String identifying the source for the audit log message.
    */
   public function logOperation(array $message, string $origin): void {
-
     $current_timestamp = $this->time->getCurrentMicroTime();
 
     $operation_data = [
@@ -72,7 +90,7 @@ class AuditLogService implements AuditLogServiceInterface {
     $operation_data = array_merge($operation_data, $message);
 
     try {
-      $result = $this->connection->insert('helfi_audit_logs')
+      $this->connection->insert('helfi_audit_logs')
         ->fields([
           'created_at' => gmdate('Y-m-d H:i:s', $this->time->getRequestTime()),
           'is_sent' => 0,
@@ -81,10 +99,9 @@ class AuditLogService implements AuditLogServiceInterface {
         ->execute();
     }
     catch (\Exception $e) {
-      \Drupal::logger('helfi_audit_log')
-        ->error(t('Unable to write log message to database.'));
+      $this->logger
+        ->error($this->t('Unable to write log message to database.'));
     }
-
   }
 
 }
