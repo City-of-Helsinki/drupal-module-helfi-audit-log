@@ -5,12 +5,13 @@ namespace Drupal\helfi_audit_log;
 use Drupal\Component\Datetime\TimeInterface;
 use Drupal\Component\Serialization\Json;
 use Drupal\Core\Database\Connection;
-use Drupal\Core\Http\RequestStack;
-use Drupal\Core\Logger\LoggerChannelFactory;
 use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\helfi_audit_log\Event\AuditLogEvent;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * AuditLog service.
@@ -18,6 +19,12 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 class AuditLogService implements AuditLogServiceInterface {
 
   use StringTranslationTrait;
+  /**
+   * Current user.
+   *
+   * @var Drupal\Core\Session\AccountProxyInterface
+   */
+  protected AccountProxyInterface $currentUser;
 
   /**
    * Database connection.
@@ -27,11 +34,32 @@ class AuditLogService implements AuditLogServiceInterface {
   protected Connection $connection;
 
   /**
+   * Time.
+   *
+   * @var \Drupal\Component\Datetime\TimeInterface
+   */
+  protected TimeInterface $time;
+
+  /**
+   * Current request.
+   *
+   * @var \Symfony\Component\HttpFoundation\Request
+   */
+  protected Request $request;
+
+  /**
+   * Event dispatcher.
+   *
+   * @var \Symfony\Component\Request\EventDispatcherInterface
+   */
+  protected EventDispatcherInterface $eventDispatcher;
+
+  /**
    * Logger.
    *
-   * @var \Drupal\Core\Logger\LoggerChannelFactory
+   * @var \Drupal\Core\Logger\LoggerInterface
    */
-  protected $logger;
+  protected LoggerInterface $logger;
 
   /**
    * Constructs a AuditLogService object.
@@ -42,14 +70,14 @@ class AuditLogService implements AuditLogServiceInterface {
     TimeInterface $time,
     RequestStack $requestStack,
     EventDispatcherInterface $eventDispatcher,
-    LoggerChannelFactory $loggerFactory
+    LoggerInterface $logger
   ) {
     $this->currentUser = $accountProxy;
     $this->connection = $connection;
     $this->time = $time;
     $this->request = $requestStack->getCurrentRequest();
     $this->eventDispatcher = $eventDispatcher;
-    $this->logger = $loggerFactory->get('helfi_audit_log');
+    $this->logger = $logger;
   }
 
   /**
@@ -72,6 +100,7 @@ class AuditLogService implements AuditLogServiceInterface {
    *   String identifying the source for the audit log message.
    */
   public function logOperation(array $message, string $origin): void {
+
     $current_timestamp = $this->time->getCurrentMicroTime();
 
     $operation_data = [

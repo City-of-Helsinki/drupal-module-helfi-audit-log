@@ -23,6 +23,27 @@ class AuditLogEvent extends Event {
   const LOG = 'helfi_audit_log.audit_log_event';
 
   /**
+   * Message.
+   *
+   * @var array
+   */
+  protected array $message;
+
+  /**
+   * Origin of the message.
+   *
+   * @var string
+   */
+  protected string $origin;
+
+  /**
+   * Validity of the message.
+   *
+   * @var bool
+   */
+  protected string $isValid;
+
+  /**
    * Construct a new event object.
    */
   public function __construct(array $message, string $origin = 'DRUPAL') {
