@@ -5,15 +5,26 @@ namespace Drupal\helfi_audit_log;
 use Drupal\Component\Datetime\TimeInterface;
 use Drupal\Component\Serialization\Json;
 use Drupal\Core\Database\Connection;
-use Drupal\Core\Http\RequestStack;
 use Drupal\Core\Session\AccountProxyInterface;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\helfi_audit_log\Event\AuditLogEvent;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * AuditLog service.
  */
 class AuditLogService implements AuditLogServiceInterface {
+
+  use StringTranslationTrait;
+  /**
+   * Current user.
+   *
+   * @var Drupal\Core\Session\AccountProxyInterface
+   */
+  protected AccountProxyInterface $currentUser;
 
   /**
    * Database connection.
@@ -23,18 +34,54 @@ class AuditLogService implements AuditLogServiceInterface {
   protected Connection $connection;
 
   /**
+   * Time.
+   *
+   * @var \Drupal\Component\Datetime\TimeInterface
+   */
+  protected TimeInterface $time;
+
+  /**
+   * Current request.
+   *
+   * @var \Symfony\Component\HttpFoundation\Request
+   */
+  protected Request $request;
+
+  /**
+   * Event dispatcher.
+   *
+   * @var \Symfony\Component\Request\EventDispatcherInterface
+   */
+  protected EventDispatcherInterface $eventDispatcher;
+
+  /**
+   * Logger.
+   *
+   * @var \Drupal\Core\Logger\LoggerInterface
+   */
+  protected LoggerInterface $logger;
+
+  /**
    * Constructs a AuditLogService object.
    */
-  public function __construct(AccountProxyInterface $accountProxy, Connection $connection, TimeInterface $time, RequestStack $requestStack, EventDispatcherInterface $eventDispatcher) {
+  public function __construct(
+    AccountProxyInterface $accountProxy,
+    Connection $connection,
+    TimeInterface $time,
+    RequestStack $requestStack,
+    EventDispatcherInterface $eventDispatcher,
+    LoggerInterface $logger
+  ) {
     $this->currentUser = $accountProxy;
     $this->connection = $connection;
     $this->time = $time;
     $this->request = $requestStack->getCurrentRequest();
     $this->eventDispatcher = $eventDispatcher;
+    $this->logger = $logger;
   }
 
   /**
-   * Dispatch AuditLogEvent
+   * Dispatch AuditLogEvent.
    *
    * @param array $message
    *   Message associated with the event.
@@ -72,7 +119,7 @@ class AuditLogService implements AuditLogServiceInterface {
     $operation_data = array_merge($operation_data, $message);
 
     try {
-      $result = $this->connection->insert('helfi_audit_logs')
+      $this->connection->insert('helfi_audit_logs')
         ->fields([
           'created_at' => gmdate('Y-m-d H:i:s', $this->time->getRequestTime()),
           'is_sent' => 0,
@@ -81,10 +128,9 @@ class AuditLogService implements AuditLogServiceInterface {
         ->execute();
     }
     catch (\Exception $e) {
-      \Drupal::logger('helfi_audit_log')
-        ->error(t('Unable to write log message to database.'));
+      $this->logger
+        ->error($this->t('Unable to write log message to database.'));
     }
-
   }
 
 }

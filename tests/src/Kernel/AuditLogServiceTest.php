@@ -2,9 +2,9 @@
 
 namespace Drupal\Tests\helfi_audit_log\Kernel;
 
-use Drupal\KernelTests\KernelTestBase;
 use Drupal\Core\DependencyInjection\ContainerBuilder;
 use Drupal\Core\DependencyInjection\ServiceModifierInterface;
+use Drupal\KernelTests\KernelTestBase;
 
 /**
  * Tests the AuditLogService.

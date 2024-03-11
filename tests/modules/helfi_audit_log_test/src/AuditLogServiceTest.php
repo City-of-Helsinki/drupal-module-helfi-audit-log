@@ -23,12 +23,13 @@ class AuditLogServiceTest extends AuditLogService {
   }
 
   /**
-   * Helper funtion to return values used in logOperation call
+   * Helper funtion to return values used in logOperation call.
    */
   public function getValues(): array {
     return [
-        'message' => $this->message,
-        'origin' => $this->origin,
+      'message' => $this->message,
+      'origin' => $this->origin,
     ];
   }
+
 }

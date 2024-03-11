@@ -4,7 +4,7 @@
     "description": "Helfi - Audit log",
     "license": "GPL-2.0-or-later",
     "minimum-stability": "dev",
-    "version": "0.9.8",
+    "version": "0.9.9",
     "require-dev": {
         "dealerdirect/phpcodesniffer-composer-installer": "^0.7.0",
         "drupal/coder": "^8.3"
