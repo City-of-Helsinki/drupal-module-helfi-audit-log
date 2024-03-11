@@ -10,7 +10,7 @@ services:
       '@datetime.time',
       '@request_stack',
       '@event_dispatcher',
-      '@logger.factory'
+      '@logger.channel.helfi_audit_log'
     ]
   helfi_audit_log.audit_log_event_subscriber:
     class: Drupal\helfi_audit_log\EventSubscriber\AuditLogEventSubscriber
