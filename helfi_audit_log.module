@@ -8,3 +8,18 @@
  * This file is no longer required in Drupal 8.
  * @see https://www.drupal.org/node/2217931
  */
+
+/**
+ * Implements hook_cron().
+ */
+function helfi_audit_log_cron() {
+  // Remove sent logs which are older than 1 month.
+  $currentDateTime = new DateTime();
+  $currentDateTime->modify('-1 month');
+  $timeStamp = $currentDateTime->format('Y-m-d H:i:s');
+
+  \Drupal::database()->delete('helfi_audit_logs')
+    ->condition('is_sent', 1)
+    ->condition('created_at', $timeStamp, '<')
+    ->execute();
+}
